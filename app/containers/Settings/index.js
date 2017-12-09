@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { setKeys, getAccountKeys } from '../../modules/account'
-import { setBlockExplorer, getBlockExplorer } from '../../modules/metadata'
+import { setBlockExplorer, getBlockExplorer, getNetwork, setNetwork } from '../../modules/metadata'
 import { setCurrency, getCurrency } from '../../modules/price'
 
 import { showModal } from '../../modules/modal'
@@ -13,14 +13,16 @@ import Settings from './Settings'
 const mapStateToProps = (state: Object) => ({
   explorer: getBlockExplorer(state),
   currency: getCurrency(state),
-  wallets: getAccountKeys(state)
+  wallets: getAccountKeys(state),
+  network: getNetwork(state)
 })
 
 const actionCreators = {
   setKeys,
   setBlockExplorer,
   setCurrency,
-  showModal
+  showModal,
+  setNetwork
 }
 
 const mapDispatchToProps = dispatch => bindActionCreators(actionCreators, dispatch)

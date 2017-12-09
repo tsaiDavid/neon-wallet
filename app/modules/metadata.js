@@ -1,6 +1,7 @@
 // @flow
 import axios from 'axios'
 import { api } from 'neon-js'
+import { isNil } from 'lodash'
 import storage from 'electron-json-storage'
 
 import { showWarningNotification } from './notifications'
@@ -17,8 +18,7 @@ export const SET_NETWORK = 'SET_NETWORK'
 export const SET_EXPLORER = 'SET_EXPLORER'
 
 // Actions
-export function setNetwork (net: NetworkType) {
-  const network = net === NETWORK.MAIN ? NETWORK.MAIN : NETWORK.TEST
+export function setNetwork (network: NetworkType) {
   return {
     type: SET_NETWORK,
     payload: { network }
@@ -62,12 +62,16 @@ export const checkVersion = () => async (dispatch: DispatchType, getState: GetSt
 export const initSettings = () => async (dispatch: DispatchType) => {
   // eslint-disable-next-line
   storage.get('settings', (error, settings) => {
-    if (settings.blockExplorer !== null && settings.blockExplorer !== undefined) {
+    if (!isNil(settings.blockExplorer)) {
       dispatch(setBlockExplorer(settings.blockExplorer))
     }
 
-    if (settings.currency !== null && settings.currency !== undefined) {
+    if (!isNil(settings.currency)) {
       dispatch(setCurrency(settings.currency))
+    }
+
+    if (!isNil(settings.network)) {
+      dispatch(setNetwork(settings.network))
     }
   })
 }

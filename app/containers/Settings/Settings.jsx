@@ -5,7 +5,7 @@ import fs from 'fs'
 import storage from 'electron-json-storage'
 
 import HomeButtonLink from '../../components/HomeButtonLink'
-import { EXPLORERS, MODAL_TYPES, CURRENCIES } from '../../core/constants'
+import { EXPLORERS, MODAL_TYPES, CURRENCIES, NETWORK } from '../../core/constants'
 
 import Delete from 'react-icons/lib/md/delete'
 
@@ -18,7 +18,9 @@ type Props = {
   setCurrency: Function,
   currency: string,
   wallets: any,
-  showModal: Function
+  showModal: Function,
+  network: NetworkType,
+  setNetwork: Function
 }
 
 type State = {
@@ -102,6 +104,11 @@ export default class Settings extends Component<Props, State> {
     setCurrency(e.target.value)
   }
 
+  updateNetworkSettings = (e: Object) => {
+    const { setNetwork } = this.props
+    setNetwork(e.target.value)
+  }
+
   deleteWallet = (key: string) => {
     const { setKeys, showModal } = this.props
     showModal(MODAL_TYPES.CONFIRM, {
@@ -129,12 +136,20 @@ export default class Settings extends Component<Props, State> {
   }
 
   render () {
-    const { wallets, explorer, currency } = this.props
-
+    const { wallets, explorer, currency, network } = this.props
+    console.log(network)
     return (
       <div id='settings'>
         <div className='description'>Manage your Neon wallet keys and settings</div>
         <div className='settingsForm'>
+          <div className='settingsItem'>
+            <div className='itemTitle'>Network</div>
+            <select value={network} onChange={this.updateNetworkSettings}>
+              {Object.keys(NETWORK).map((explorer: ExplorerType) =>
+                <option key={explorer} value={NETWORK[explorer]}>{NETWORK[explorer]}</option>)
+              }
+            </select>
+          </div>
           <div className='settingsItem'>
             <div className='itemTitle'>Block Explorer</div>
             <select value={explorer} onChange={this.updateExplorerSettings}>
