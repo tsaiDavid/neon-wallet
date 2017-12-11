@@ -9,7 +9,8 @@ type Props = {
   primary: boolean,
   cancel: boolean,
   secondary: boolean,
-  onClick?: () => any
+  onClick?: () => any,
+  className?: string
 }
 
 const Button = ({
@@ -17,13 +18,14 @@ const Button = ({
   secondary = false,
   cancel = false,
   children,
-  onClick
+  onClick,
+  className
 }: Props) =>
   <button onClick={onClick}
     className={classNames(styles.button, {
       [styles.primary]: primary,
       [styles.secondary]: secondary,
       [styles.cancel]: cancel
-    })}>{children}</button>
+    }, className)}>{children}</button>
 
 export default Button

@@ -1,13 +1,16 @@
 // @flow
 import React, { Component } from 'react'
-import { forEach, map } from 'lodash'
+import { forEach, map, isEqual } from 'lodash'
 import fs from 'fs'
 import storage from 'electron-json-storage'
 
 import HomeButtonLink from '../../components/HomeButtonLink'
-import { EXPLORERS, MODAL_TYPES, CURRENCIES, NETWORK } from '../../core/constants'
+import Button from '../../components/Button'
+import { EXPLORERS, MODAL_TYPES, CURRENCIES } from '../../core/constants'
 
 import Delete from 'react-icons/lib/md/delete'
+
+import styles from './Settings.scss'
 
 const { dialog } = require('electron').remote
 
@@ -20,7 +23,10 @@ type Props = {
   wallets: any,
   showModal: Function,
   network: NetworkType,
-  setNetwork: Function
+  setNetwork: Function,
+  networks: Array<NetworkOptionType>,
+  privateNetworks: Array<PrivateNetworkOptionType>,
+  setPrivateNetworks: Function
 }
 
 type State = {
@@ -39,6 +45,18 @@ export default class Settings extends Component<Props, State> {
     storage.get('keys', (error, data) => {
       setKeys(data)
     })
+  }
+
+  componentWillReceiveProps (nextProps: Props) {
+    if (!isEqual(nextProps, this.props)) {
+      const { explorer, network, currency, privateNetworks } = nextProps
+      storage.set('settings', {
+        blockExplorer: explorer,
+        network,
+        currency,
+        privateNetworks
+      })
+    }
   }
 
   saveKeyRecovery = (keys: Object) => {
@@ -87,26 +105,22 @@ export default class Settings extends Component<Props, State> {
     })
   }
 
-  componentWillReceiveProps (nextProps: Props) {
-    storage.set('settings', {
-      currency: nextProps.currency,
-      blockExplorer: nextProps.explorer
-    })
-  }
-
   updateExplorerSettings = (e: Object) => {
     const { setBlockExplorer } = this.props
-    setBlockExplorer(e.target.value)
+    const value = e.target.value
+    setBlockExplorer(value)
   }
 
   updateCurrencySettings = (e: Object) => {
     const { setCurrency } = this.props
-    setCurrency(e.target.value)
+    const value = e.target.value
+    setCurrency(value)
   }
 
   updateNetworkSettings = (e: Object) => {
     const { setNetwork } = this.props
-    setNetwork(e.target.value)
+    const value = e.target.value
+    setNetwork(value)
   }
 
   deleteWallet = (key: string) => {
@@ -125,24 +139,32 @@ export default class Settings extends Component<Props, State> {
     })
   }
 
+  openPrivateNetModal = () => {
+    const { setPrivateNetworks, privateNetworks, showModal } = this.props
+    showModal(MODAL_TYPES.PRIVATE_NET, {
+      networks: privateNetworks,
+      setPrivateNetworks
+    })
+  }
+
   render () {
-    const { wallets, explorer, currency, network } = this.props
-    console.log(network)
+    const { wallets, explorer, currency, network, networks } = this.props
     return (
       <div id='settings'>
         <div className='description'>Manage your Neon wallet keys and settings</div>
         <div className='settingsForm'>
           <div className='settingsItem'>
             <div className='itemTitle'>Network</div>
-            <select value={network} onChange={this.updateNetworkSettings}>
-              {Object.keys(NETWORK).map((explorer: ExplorerType) =>
-                <option key={explorer} value={NETWORK[explorer]}>{NETWORK[explorer]}</option>)
-              }
+            <select defaultValue={network} onChange={this.updateNetworkSettings}>
+              {networks.map(({ label, value }: NetworkOptionType) =>
+                <option key={label} value={value}>{label}</option>
+              )}
             </select>
+            <Button onClick={this.openPrivateNetModal} className={styles.managePrivateNetwork}>Manage Private Networks</Button>
           </div>
           <div className='settingsItem'>
             <div className='itemTitle'>Block Explorer</div>
-            <select value={explorer} onChange={this.updateExplorerSettings}>
+            <select defaultValue={explorer} onChange={this.updateExplorerSettings}>
               {Object.keys(EXPLORERS).map((explorer: ExplorerType) =>
                 <option key={explorer} value={EXPLORERS[explorer]}>{EXPLORERS[explorer]}</option>)
               }
@@ -150,7 +172,7 @@ export default class Settings extends Component<Props, State> {
           </div>
           <div className='settingsItem'>
             <div className='itemTitle'>Currency</div>
-            <select value={currency} onChange={this.updateCurrencySettings}>
+            <select defaultValue={currency} onChange={this.updateCurrencySettings}>
               {Object.keys(CURRENCIES).map((currencyCode: string) =>
                 <option value={currencyCode} key={currencyCode}>{currencyCode.toUpperCase()}</option>
               )}
@@ -171,8 +193,8 @@ export default class Settings extends Component<Props, State> {
             })
             }
           </div>
-          <button onClick={() => this.saveKeyRecovery(wallets)}>Export key recovery file</button>
-          <button onClick={this.loadKeyRecovery}>Load key recovery file</button>
+          <Button onClick={() => this.saveKeyRecovery(wallets)}>Export key recovery file</Button>
+          <Button onClick={this.loadKeyRecovery}>Load key recovery file</Button>
         </div>
         <HomeButtonLink />
       </div>

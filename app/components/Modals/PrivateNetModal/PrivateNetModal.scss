@@ -1,0 +1,47 @@
+@import '../../../styles/variables';
+
+.container {
+    padding: 12px 0;
+}
+
+.addNetwork {
+    cursor: pointer;
+    padding-bottom: 15px;
+}
+
+.rowsContainer {
+    min-height: 250px;
+}
+
+.row {
+    padding-bottom: 5px;
+}
+
+
+.rowLabel {
+    width: 80px;
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.rowURL {
+    width: 400px;
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid transparent;
+}
+
+.rowError {
+    border: 1px solid red;
+}
+
+.modalFooter {
+    padding-top: 20px;
+}
+
+.deleteIcon {
+    cursor: pointer;
+}

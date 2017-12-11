@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
 import { logout, getAddress, getLoggedIn } from '../../../modules/account'
-import { getBlockHeight, getNetwork, setNetwork } from '../../../modules/metadata'
+import { getBlockHeight, getNetwork, setNetwork, getNetworks } from '../../../modules/metadata'
 import { getNEOPrice, getGASPrice, getCurrency } from '../../../modules/price'
 import { loadWalletData } from '../../../modules/wallet'
 
@@ -16,7 +16,8 @@ const mapStateToProps = (state: Object) => ({
   gasPrice: getGASPrice(state),
   currencyCode: getCurrency(state),
   isLoggedIn: getLoggedIn(state),
-  net: getNetwork(state)
+  net: getNetwork(state),
+  networks: getNetworks(state)
 })
 
 const actionCreators = {

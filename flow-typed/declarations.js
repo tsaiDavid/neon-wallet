@@ -23,7 +23,24 @@ declare type ReduxAction = () => {
   error?: Object
 }
 
-declare type NetworkType = $Values<typeof NETWORK>
+declare type PrivateNetworkType = URL
+declare type PublicNetworkType = $Values<typeof NETWORK>
+declare type NetworkType = PrivateNetworkType | PublicNetworkType
+
+declare type NetworkOptionType = {
+  label: string,
+  value: NetworkType
+}
+
+declare type PublicNetworkOptionType = {
+  label: string,
+  value: PublicNetworkType
+}
+
+declare type PrivateNetworkOptionType = {
+  label: string,
+  value: PrivateNetworkType
+}
 
 declare type ExplorerType = $Values<typeof EXPLORER>
 

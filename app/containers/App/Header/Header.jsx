@@ -24,7 +24,8 @@ type Props = {
   isLoggedIn: boolean,
   net: NetworkType,
   loadWalletData: Function,
-  setNetwork: Function
+  setNetwork: Function,
+  networks: Array<NetworkOptionType>,
 }
 
 const Header = ({
@@ -36,7 +37,8 @@ const Header = ({
   isLoggedIn,
   net,
   setNetwork,
-  loadWalletData
+  loadWalletData,
+  networks
 }: Props) => (
   <div className={styles.container}>
     <Logo />
@@ -51,6 +53,7 @@ const Header = ({
       <WalletVersion version={version} />
       <NetworkSwitch
         net={net}
+        networks={networks}
         setNetwork={setNetwork}
         loadWalletData={loadWalletData}
       />

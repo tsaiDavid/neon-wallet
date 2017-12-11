@@ -5,35 +5,57 @@ import ConfirmModal from '../../components/Modals/ConfirmModal'
 import ReceiveModal from '../../components/Modals/ReceiveModal'
 import SendModal from '../../components/Modals/SendModal'
 import TokenInfoModal from '../../components/Modals/TokenInfoModal'
-
+import PrivateNetModal from '../../components/Modals/PrivateNetModal'
 import { MODAL_TYPES } from '../../core/constants'
+import { showErrorNotification, showSuccessNotification, showWarningNotification, showInfoNotification } from '../../modules/notifications'
 
 const {
   CONFIRM,
   RECEIVE,
   SEND,
-  TOKEN_INFO
+  TOKEN_INFO,
+  PRIVATE_NET
 } = MODAL_TYPES
 
 const MODAL_COMPONENTS = {
   [CONFIRM]: ConfirmModal,
   [RECEIVE]: ReceiveModal,
   [SEND]: SendModal,
-  [TOKEN_INFO]: TokenInfoModal
+  [TOKEN_INFO]: TokenInfoModal,
+  [PRIVATE_NET]: PrivateNetModal
 }
 
 type Props = {
     modalType?: ModalType,
     modalProps: Object,
-    hideModal: Function
+    hideModal: Function,
+    showErrorNotification: Function,
+    showSuccessNotification: Function,
+    showWarningNotification: Function,
+    showInfoNotification: Function,
 }
 
 const ModalRenderer = (props: Props) => {
-  const { modalType, modalProps, hideModal } = props
+  const {
+    modalType,
+    modalProps,
+    hideModal,
+    showErrorNotification,
+    showSuccessNotification,
+    showInfoNotification,
+    showWarningNotification
+  } = props
 
   if (modalType) {
     const Modal = MODAL_COMPONENTS[modalType]
-    return <Modal {...modalProps} hideModal={hideModal} />
+    return <Modal
+      {...modalProps}
+      hideModal={hideModal}
+      showErrorNotification={showErrorNotification}
+      showSuccessNotification={showSuccessNotification}
+      showInfoNotification={showInfoNotification}
+      showWarningNotification={showWarningNotification}
+    />
   }
 
   return null
