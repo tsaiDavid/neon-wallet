@@ -57,7 +57,8 @@ app.on('ready', () => {
 		      {type: 'separator'},
 		      {role: 'cut'},
 		      {role: 'copy'},
-		      {role: 'paste'}
+		      {role: 'paste'},
+		      {role: 'selectall'}
 		    ]
 		  },
 		  {
@@ -81,12 +82,12 @@ app.on('ready', () => {
     }
 
     const inputMenu = Menu.buildFromTemplate([
-      {label : 'Paste', accelerator : 'CmdOrCtrl+V', click() { mainWindow.webContents.paste(); }}
-    ]);
+      {label: 'Paste', accelerator: 'CmdOrCtrl+V', click () { mainWindow.webContents.paste() }}
+    ])
 
     mainWindow.webContents.on('context-menu', (event, params) => {
-      inputMenu.popup(mainWindow);
-    });
+      inputMenu.popup(mainWindow)
+    })
 
     if (process.env.START_HOT) {
       mainWindow.loadURL(`http://localhost:${port}/dist`)
