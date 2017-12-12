@@ -1,91 +1,105 @@
 // @flow
 import React, { Component } from 'react'
+import { uniqueId, reject } from 'lodash'
 import isUrl from 'is-url'
-import classNames from 'classnames'
 
 import BaseModal from '../BaseModal'
 import Button from '../../Button'
 import Tooltip from '../../Tooltip'
 
+import Row from './Row'
+
 import Add from 'react-icons/lib/md/add'
-import Delete from 'react-icons/lib/md/delete'
+import InfoOutline from 'react-icons/lib/md/info-outline'
 
 import styles from './PrivateNetModal.scss'
 
 const removeTrailingSlash = (value: any) => String(value).replace(/\/+$/, '')
 
+const ERRORS = {
+  LABEL: 'Label cannot be left blank',
+  URL: 'Please specify a valid URL that starts with http(s)://'
+}
+
 type Props = {
     hideModal: Function,
-    networks: Array<NetworkOptionType>,
+    privateNetworks: Array<PrivateNetworkItemType>,
     setPrivateNetworks: Function,
     showErrorNotification: Function
 }
 
+type ErrorType = 'label' | 'url'
+
 type State = {
-  networks: Array<NetworkOptionType>,
-  errorLabelIndex: any,
-  errorValueIndex: any,
+  privateNetworks: Array<PrivateNetworkItemType>,
+  errorRowIndex: any,
+  errorType: ErrorType
 }
 
-const newNetwork = {
+const getNewNetwork = () => ({
+  id: uniqueId('_pn'),
   label: '',
   value: ''
-}
+})
 
 class PrivateNetModal extends Component<Props, State> {
   state = {
-    networks: this.props.networks.length > 0 ? this.props.networks : [newNetwork]
+    privateNetworks: this.props.privateNetworks.length > 0
+      ? this.props.privateNetworks : [getNewNetwork()],
+    errorRowIndex: null,
+    errorType: null
   }
 
-  deleteNetwork = (index: number) => {
-    const { networks } = this.state
+  deleteNetwork = (id: string) => {
+    const { privateNetworks } = this.state
 
     this.setState({
-      networks: [
-        ...networks.slice(0, index),
-        ...networks.slice(index + 1)
-      ]
+      privateNetworks: reject(privateNetworks, { id })
     })
   }
 
   addNetwork = () => {
-    const { networks } = this.state
+    const { privateNetworks } = this.state
 
     this.setState({
-      networks: [
-        ...networks,
-        newNetwork
+      privateNetworks: [
+        ...privateNetworks,
+        getNewNetwork()
       ]
     })
   }
 
   saveNetworks = () => {
     const { setPrivateNetworks, hideModal, showErrorNotification } = this.props
-    const { networks } = this.state
-    let error = null
-    let errorLabelIndex = null
-    let errorValueIndex = null
+    const { privateNetworks } = this.state
+    let errorMessage = null
 
-    networks.some(({ value, label }: NetworkOptionType, index: number) => {
+    let errorType = null
+    let errorRowIndex = null
+
+    privateNetworks.some(({ value, label }: PrivateNetworkItemType, index: number) => {
       if (!label) {
-        error = 'Label cannot be left blank'
-        errorLabelIndex = index
-        return true
+        errorMessage = ERRORS.LABEL
+        errorType = 'label'
+      } else if (!isUrl(value)) {
+        errorMessage = ERRORS.URL
+        errorType = 'url'
       }
-      if (!isUrl(value)) {
-        error = 'Please specify a valid URL that starts with http(s)://'
-        errorValueIndex = index
+
+      if (errorMessage) {
+        errorRowIndex = index
         return true
       }
     })
-    if (error) {
-      showErrorNotification({ message: error })
+
+    if (errorMessage) {
+      showErrorNotification({ message: errorMessage })
       this.setState({
-        errorLabelIndex,
-        errorValueIndex
+        errorRowIndex,
+        errorType
       })
     } else {
-      setPrivateNetworks(networks.map((network: NetworkOptionType) => ({
+      setPrivateNetworks(privateNetworks.map((network: PrivateNetworkItemType) => ({
         ...network,
         value: removeTrailingSlash(network.value)
       })))
@@ -93,21 +107,21 @@ class PrivateNetModal extends Component<Props, State> {
     }
   }
 
-  updateNetwork = (index: number, newValue: NetworkOptionType) => {
-    const { networks } = this.state
-    const updatedNetworks = [...networks]
+  updateNetwork = (index: number, newValue: PrivateNetworkItemType) => {
+    const { privateNetworks } = this.state
+    const updatedNetworks = [...privateNetworks]
     updatedNetworks[index] = newValue
 
     this.setState({
-      networks: updatedNetworks,
-      errorLabelIndex: null,
-      errorValueIndex: null
+      privateNetworks: updatedNetworks,
+      errorRowIndex: null,
+      errorType: null
     })
   }
 
   render () {
     const { hideModal } = this.props
-    const { networks, errorLabelIndex, errorValueIndex } = this.state
+    const { privateNetworks, errorRowIndex, errorType } = this.state
 
     return (
       <BaseModal
@@ -116,32 +130,26 @@ class PrivateNetModal extends Component<Props, State> {
         style={{
           content: {
             width: '600px',
-            minHeight: '300px',
-            maxHeight: '420px'
+            height: '400px'
           }
         }}
       >
         <div className={styles.container}>
-          <div className={styles.addNetwork} onClick={this.addNetwork}><Button><Add /> Add a new private network</Button></div>
+          <div className={styles.addNetwork}>
+            <Button onClick={this.addNetwork}><Add /> Add a new private network</Button>
+            <Tooltip title='The private network must be neon-db compatible'><InfoOutline /></Tooltip>
+          </div>
           <div className={styles.rowsContainer}>
-            {networks.map((network: NetworkOptionType, index: number) => (
-              <div className={styles.row} key={`privateNetworkOption${index}`}>
-                <input
-                  className={classNames(styles.rowLabel, {[styles.rowError]: errorLabelIndex === index})}
-                  type='text'
-                  value={network.label}
-                  placeholder='Label'
-                  onChange={(e) => this.updateNetwork(index, { ...network, label: e.target.value })}
-                />
-                <input
-                  className={classNames(styles.rowURL, {[styles.rowError]: errorValueIndex === index})}
-                  type='text'
-                  placeholder='https://'
-                  value={network.value}
-                  onChange={(e) => this.updateNetwork(index, { ...network, value: e.target.value })}
-                />
-                <Tooltip title='Delete'><Delete onClick={() => this.deleteNetwork(index)} className={styles.deleteIcon} /></Tooltip>
-              </div>
+            {privateNetworks.map((network: PrivateNetworkItemType, index: number) => (
+              <Row
+                network={network}
+                isLabelInvalid={errorRowIndex === index && errorType === 'label'}
+                isUrlInvalid={errorRowIndex === index && errorType === 'url'}
+                onChangeLabel={(label: string) => this.updateNetwork(index, { ...network, label })}
+                onChangeURL={(url: URL) => this.updateNetwork(index, { ...network, value: url })}
+                onDelete={() => this.deleteNetwork(network.id)}
+                key={`privateNetworkOption${network.id}`}
+              />
             ))}
           </div>
           <div className={styles.modalFooter}>

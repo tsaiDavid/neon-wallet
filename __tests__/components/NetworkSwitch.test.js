@@ -28,7 +28,7 @@ jest.mock('neon-js')
 const setup = () => {
   const props = {
     net: 'MainNet',
-    setNetwork: jest.fn(),
+    setNetworkId: jest.fn(),
     loadWalletData: jest.fn()
   }
   const wrapper = shallow(<NetworkSwitch {...props} />)
@@ -60,12 +60,12 @@ describe('NetworkSwitch', () => {
     const networkSelector = wrapper.find('.networkSelector')
     networkSelector.simulate('change', { target: { value: 'TestNet' } })
 
-    expect(instance.props.setNetwork).toHaveBeenCalledWith('TestNet')
+    expect(instance.props.setNetworkId).toHaveBeenCalledWith('TestNet')
     expect(instance.props.loadWalletData).toHaveBeenCalled()
 
     networkSelector.simulate('change', { target: { value: 'MainNet' } })
 
-    expect(instance.props.setNetwork).toHaveBeenCalledWith('MainNet')
+    expect(instance.props.setNetworkId).toHaveBeenCalledWith('MainNet')
     expect(instance.props.loadWalletData).toHaveBeenCalled()
   })
 })

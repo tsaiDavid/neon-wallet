@@ -7,8 +7,8 @@ import { setCurrency, getCurrency } from '../../modules/price'
 import {
   setBlockExplorer,
   getBlockExplorer,
-  getNetwork,
-  setNetwork,
+  getNetworkId,
+  setNetworkId,
   setPrivateNetworks,
   getNetworks,
   getPrivateNetworks
@@ -22,7 +22,7 @@ const mapStateToProps = (state: Object) => ({
   explorer: getBlockExplorer(state),
   currency: getCurrency(state),
   wallets: getAccountKeys(state),
-  network: getNetwork(state),
+  networkId: getNetworkId(state),
   networks: getNetworks(state),
   privateNetworks: getPrivateNetworks(state)
 })
@@ -32,7 +32,7 @@ const actionCreators = {
   setBlockExplorer,
   setCurrency,
   showModal,
-  setNetwork,
+  setNetworkId,
   setPrivateNetworks
 }
 

@@ -27,17 +27,20 @@ declare type PrivateNetworkType = URL
 declare type PublicNetworkType = $Values<typeof NETWORK>
 declare type NetworkType = PrivateNetworkType | PublicNetworkType
 
-declare type NetworkOptionType = {
+declare type NetworkItemType = {
+  id: string,
   label: string,
   value: NetworkType
 }
 
-declare type PublicNetworkOptionType = {
+declare type PublicNetworkItemType = {
+  id: string,
   label: string,
   value: PublicNetworkType
 }
 
-declare type PrivateNetworkOptionType = {
+declare type PrivateNetworkItemType = {
+  id: string,
   label: string,
   value: PrivateNetworkType
 }

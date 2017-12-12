@@ -7,7 +7,6 @@ import SendModal from '../../components/Modals/SendModal'
 import TokenInfoModal from '../../components/Modals/TokenInfoModal'
 import PrivateNetModal from '../../components/Modals/PrivateNetModal'
 import { MODAL_TYPES } from '../../core/constants'
-import { showErrorNotification, showSuccessNotification, showWarningNotification, showInfoNotification } from '../../modules/notifications'
 
 const {
   CONFIRM,

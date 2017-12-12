@@ -22,10 +22,10 @@ type Props = {
   currencyCode: string,
   logout: Function,
   isLoggedIn: boolean,
-  net: NetworkType,
+  networkId: string,
   loadWalletData: Function,
-  setNetwork: Function,
-  networks: Array<NetworkOptionType>,
+  setNetworkId: Function,
+  networks: Array<NetworkItemType>,
 }
 
 const Header = ({
@@ -35,8 +35,8 @@ const Header = ({
   gasPrice,
   currencyCode,
   isLoggedIn,
-  net,
-  setNetwork,
+  networkId,
+  setNetworkId,
   loadWalletData,
   networks
 }: Props) => (
@@ -52,9 +52,9 @@ const Header = ({
       <WalletBlockHeight blockHeight={blockHeight} />
       <WalletVersion version={version} />
       <NetworkSwitch
-        net={net}
+        networkId={networkId}
         networks={networks}
-        setNetwork={setNetwork}
+        setNetworkId={setNetworkId}
         loadWalletData={loadWalletData}
       />
       <Logout onClick={logout} />

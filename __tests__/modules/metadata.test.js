@@ -1,4 +1,4 @@
-import metadataReducer, { setNetwork, setBlockHeight, setBlockExplorer, SET_HEIGHT, SET_NETWORK, SET_EXPLORER } from '../../app/modules/metadata'
+import metadataReducer, { setNetworkId, setBlockHeight, setBlockExplorer, SET_HEIGHT, SET_NETWORK, SET_EXPLORER } from '../../app/modules/metadata'
 
 describe('metadata module tests', () => {
   const network = 'TestNet'
@@ -11,7 +11,7 @@ describe('metadata module tests', () => {
     blockExplorer: 'Neotracker'
   }
 
-  describe('setNetwork tests', () => {
+  describe('setNetworkId tests', () => {
     const expectedAction = {
       type: SET_NETWORK,
       payload: {
@@ -19,11 +19,11 @@ describe('metadata module tests', () => {
       }
     }
 
-    test('setNetwork action works', () => {
-      expect(setNetwork(network)).toEqual(expectedAction)
+    test('setNetworkId action works', () => {
+      expect(setNetworkId(network)).toEqual(expectedAction)
     })
 
-    test('setNetwork reducer should return the initial state', () => {
+    test('setNetworkId reducer should return the initial state', () => {
       expect(metadataReducer(undefined, {})).toEqual(initialState)
     })
 

@@ -22,23 +22,14 @@ type Props = {
   currency: string,
   wallets: any,
   showModal: Function,
-  network: NetworkType,
-  setNetwork: Function,
-  networks: Array<NetworkOptionType>,
-  privateNetworks: Array<PrivateNetworkOptionType>,
+  networkId: string,
+  setNetworkId: Function,
+  networks: Array<NetworkItemType>,
+  privateNetworks: Array<PrivateNetworkItemType>,
   setPrivateNetworks: Function
 }
 
-type State = {
-  explorer: string,
-}
-
-export default class Settings extends Component<Props, State> {
-  state = {
-    explorer: this.props.explorer,
-    currency: this.props.currency
-  }
-
+export default class Settings extends Component<Props> {
   componentDidMount () {
     const { setKeys } = this.props
     // eslint-disable-next-line
@@ -49,10 +40,10 @@ export default class Settings extends Component<Props, State> {
 
   componentWillReceiveProps (nextProps: Props) {
     if (!isEqual(nextProps, this.props)) {
-      const { explorer, network, currency, privateNetworks } = nextProps
+      const { explorer, networkId, currency, privateNetworks } = nextProps
       storage.set('settings', {
         blockExplorer: explorer,
-        network,
+        networkId,
         currency,
         privateNetworks
       })
@@ -118,9 +109,9 @@ export default class Settings extends Component<Props, State> {
   }
 
   updateNetworkSettings = (e: Object) => {
-    const { setNetwork } = this.props
+    const { setNetworkId } = this.props
     const value = e.target.value
-    setNetwork(value)
+    setNetworkId(value)
   }
 
   deleteWallet = (key: string) => {
@@ -142,22 +133,22 @@ export default class Settings extends Component<Props, State> {
   openPrivateNetModal = () => {
     const { setPrivateNetworks, privateNetworks, showModal } = this.props
     showModal(MODAL_TYPES.PRIVATE_NET, {
-      networks: privateNetworks,
+      privateNetworks,
       setPrivateNetworks
     })
   }
 
   render () {
-    const { wallets, explorer, currency, network, networks } = this.props
+    const { wallets, explorer, currency, networkId, networks } = this.props
     return (
       <div id='settings'>
         <div className='description'>Manage your Neon wallet keys and settings</div>
         <div className='settingsForm'>
           <div className='settingsItem'>
             <div className='itemTitle'>Network</div>
-            <select defaultValue={network} onChange={this.updateNetworkSettings}>
-              {networks.map(({ label, value }: NetworkOptionType) =>
-                <option key={label} value={value}>{label}</option>
+            <select defaultValue={networkId} onChange={this.updateNetworkSettings}>
+              {networks.map(({ label, id }: NetworkItemType) =>
+                <option key={`networkOption${id}`} value={id}>{label}</option>
               )}
             </select>
             <Button onClick={this.openPrivateNetModal} className={styles.managePrivateNetwork}>Manage Private Networks</Button>

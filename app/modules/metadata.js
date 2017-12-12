@@ -1,4 +1,5 @@
 // @flow
+import { createSelector } from 'reselect'
 import axios from 'axios'
 import { api } from 'neon-js'
 import { isNil } from 'lodash'
@@ -14,14 +15,14 @@ import { version } from '../../package.json'
 
 // Constants
 export const SET_HEIGHT = 'SET_HEIGHT'
-export const SET_NETWORK = 'SET_NETWORK'
+export const SET_NETWORK_ID = 'SET_NETWORK_ID'
 export const SET_EXPLORER = 'SET_EXPLORER'
 export const SET_PRIVATE_NETWORKS = 'SET_PRIVATE_NETWORKS'
 
 // Actions
-export const setNetwork = (network: NetworkType) => ({
-  type: SET_NETWORK,
-  payload: { network }
+export const setNetworkId = (networkId: string) => ({
+  type: SET_NETWORK_ID,
+  payload: { networkId }
 })
 
 export const setBlockHeight = (blockHeight: number) => ({
@@ -34,7 +35,7 @@ export const setBlockExplorer = (blockExplorer: ExplorerType) => ({
   payload: { blockExplorer }
 })
 
-export const setPrivateNetworks = (privateNetworks: Array<NetworkOptionType>) => ({
+export const setPrivateNetworks = (privateNetworks: Array<NetworkItemType>) => ({
   type: SET_PRIVATE_NETWORKS,
   payload: { privateNetworks }
 })
@@ -73,8 +74,8 @@ export const initSettings = () => async (dispatch: DispatchType) => {
       dispatch(setPrivateNetworks(settings.privateNetworks))
     }
 
-    if (!isNil(settings.network)) {
-      dispatch(setNetwork(settings.network))
+    if (!isNil(settings.networkId)) {
+      dispatch(setNetworkId(settings.networkId))
     }
   })
 }
@@ -86,24 +87,42 @@ export const syncBlockHeight = (net: NetworkType) => async (dispatch: DispatchTy
 
 // state getters
 export const getBlockHeight = (state: Object) => state.metadata.blockHeight
-export const getNetwork = (state: Object) => state.metadata.network
-export const getBlockExplorer = (state: Object) => state.metadata.blockExplorer
-export const getPublicNetworks = (state: Object) => state.metadata.publicNetworks
-export const getPrivateNetworks = (state: Object) => state.metadata.privateNetworks
-export const getNetworks = (state: Object) => [...getPublicNetworks(state), ...getPrivateNetworks(state)]
+export const getNetworkId = (state: Object) => state.metadata.networkId
 
-const initialState = {
-  blockHeight: 0,
-  network: NETWORK.MAIN,
-  blockExplorer: EXPLORERS.NEO_TRACKER,
-  publicNetworks: [{
+export const getBlockExplorer = (state: Object) => state.metadata.blockExplorer
+export const getPublicNetwork = (state: Object) => state.metadata.publicNetworks
+export const getPrivateNetworks = (state: Object) => state.metadata.privateNetworks
+export const getNetworks = (state: Object) => [...getPublicNetwork(state), ...getPrivateNetworks(state)]
+
+// computed state getters
+
+export const getNetwork = createSelector(
+  getNetworks,
+  getNetworkId,
+  (networks, networkId) => {
+    console.log(networks)
+    return networks.find(({ id, value }) => id === networkId).value
+  }
+)
+
+const publicNetworks = [
+  {
+    id: '1',
     label: NETWORK.MAIN,
     value: NETWORK.MAIN
   },
   {
+    id: '2',
     label: NETWORK.TEST,
     value: NETWORK.TEST
-  }],
+  }
+]
+
+const initialState = {
+  blockHeight: 0,
+  networkId: publicNetworks[0].id,
+  blockExplorer: EXPLORERS.NEO_TRACKER,
+  publicNetworks,
   privateNetworks: []
 }
 
@@ -121,11 +140,11 @@ export default (state: Object = initialState, action: ReduxAction) => {
         ...state,
         blockExplorer
       }
-    case SET_NETWORK:
-      const { network } = action.payload
+    case SET_NETWORK_ID:
+      const { networkId } = action.payload
       return {
         ...state,
-        network
+        networkId
       }
     case SET_PRIVATE_NETWORKS:
       const { privateNetworks } = action.payload
