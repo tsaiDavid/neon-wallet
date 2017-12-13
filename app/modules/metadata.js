@@ -13,6 +13,32 @@ import asyncWrap from '../core/asyncHelper'
 
 import { version } from '../../package.json'
 
+const publicNetworks = [
+  {
+    id: '1',
+    label: NETWORK.MAIN,
+    value: NETWORK.MAIN
+  },
+  {
+    id: '2',
+    label: NETWORK.TEST,
+    value: NETWORK.TEST
+  }
+]
+
+const defaultNetworkId = publicNetworks[0].id
+
+const shouldSetDefaultNetworkId = (prevPrivateNetworks: Array<PrivateNetworkItemType>, nextPrivateNetworks: Array<PrivateNetworkItemType>, networkId: string) => {
+  const prevNetworkIdFound = prevPrivateNetworks.find(({ id }) => id === networkId)
+  const nextNetworkIdFound = nextPrivateNetworks.find(({ id }) => id === networkId)
+
+  if (prevNetworkIdFound && !nextNetworkIdFound) {
+    return true
+  }
+
+  return false
+}
+
 // Constants
 export const SET_HEIGHT = 'SET_HEIGHT'
 export const SET_NETWORK_ID = 'SET_NETWORK_ID'
@@ -25,6 +51,11 @@ export const setNetworkId = (networkId: string) => ({
   payload: { networkId }
 })
 
+export const setDefaultNetworkId = () => ({
+  type: SET_NETWORK_ID,
+  payload: { networkId: defaultNetworkId }
+})
+
 export const setBlockHeight = (blockHeight: number) => ({
   type: SET_HEIGHT,
   payload: { blockHeight }
@@ -35,15 +66,27 @@ export const setBlockExplorer = (blockExplorer: ExplorerType) => ({
   payload: { blockExplorer }
 })
 
-export const setPrivateNetworks = (privateNetworks: Array<NetworkItemType>) => ({
-  type: SET_PRIVATE_NETWORKS,
-  payload: { privateNetworks }
-})
+export const setPrivateNetworks = (privateNetworks: Array<PrivateNetworkItemType>) => (dispatch: DispatchType, getState: GetStateType) => {
+  const state = getState()
+  const networkId = getNetworkId(state)
+  const currentPrivateNetworks = getPrivateNetworks(state)
+
+  if (shouldSetDefaultNetworkId(currentPrivateNetworks, privateNetworks, networkId)) {
+    dispatch(setDefaultNetworkId())
+  }
+
+  return dispatch({
+    type: SET_PRIVATE_NETWORKS,
+    payload: { privateNetworks }
+  })
+}
 
 export const checkVersion = () => async (dispatch: DispatchType, getState: GetStateType) => {
   const state = getState()
   const network = getNetwork(state)
+
   const apiEndpoint = api.neonDB.getAPIEndpoint(network)
+
   const [err, res] = await asyncWrap(axios.get(`${apiEndpoint}/v2/version`))
   const shouldUpdate = res && res.data && res.data.version !== version
   if (err || shouldUpdate) {
@@ -99,28 +142,12 @@ export const getNetworks = (state: Object) => [...getPublicNetwork(state), ...ge
 export const getNetwork = createSelector(
   getNetworks,
   getNetworkId,
-  (networks, networkId) => {
-    console.log(networks)
-    return networks.find(({ id, value }) => id === networkId).value
-  }
+  (networks, networkId) => networks.find(({ id, value }) => id === networkId).value
 )
-
-const publicNetworks = [
-  {
-    id: '1',
-    label: NETWORK.MAIN,
-    value: NETWORK.MAIN
-  },
-  {
-    id: '2',
-    label: NETWORK.TEST,
-    value: NETWORK.TEST
-  }
-]
 
 const initialState = {
   blockHeight: 0,
-  networkId: publicNetworks[0].id,
+  networkId: defaultNetworkId,
   blockExplorer: EXPLORERS.NEO_TRACKER,
   publicNetworks,
   privateNetworks: []
