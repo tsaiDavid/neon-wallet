@@ -90,17 +90,20 @@ export const retrieveTokensBalance = () => async (dispatch: DispatchType, getSta
   for (const token of tokens) {
     const { scriptHash, symbol } = token
     const [rpcError, tokenRpcEndpoint] = await asyncWrap(api.neonDB.getRPCEndpoint(net))
-    const [tokenError, tokenResults] = await asyncWrap(api.nep5.getToken(tokenRpcEndpoint, scriptHash, address))
+    const [tokenBalanceError, tokenBalance] = await asyncWrap(api.nep5.getTokenBalance(tokenRpcEndpoint, scriptHash, address))
+    const [tokenInfoError, tokenInfo] = await asyncWrap(api.nep5.getTokenInfo(tokenRpcEndpoint, scriptHash))
 
-    if (rpcError || tokenError) {
-      dispatch(showErrorNotification({ message: `could not retrieve ${symbol} balance`, stack: true }))
-    } else {
-      tokenBalances.push({
-        ...tokenResults,
-        balance: isNil(tokenResults.balance) ? 0 : tokenResults.balance,
-        scriptHash
-      })
-    }
+    /* disable for now
+      if (rpcError || tokenBalanceError || tokenInfoError) {
+        dispatch(showErrorNotification({ message: `could not retrieve ${symbol} balance`, stack: true }))
+      } else {
+*   */
+    tokenBalances.push({
+      symbol,
+      ...tokenInfo,
+      balance: (isNil(tokenBalance) || isNaN(tokenBalance)) ? 0 : tokenBalance,
+      scriptHash
+    })
   }
 
   return dispatch(setTokensBalance(tokenBalances))
