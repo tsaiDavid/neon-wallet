@@ -83,7 +83,6 @@ export const sendTransaction = (sendAddress: string, sendAmount: string, symbol:
 
     const [err, response] = await asyncWrap(sendAssetFn())
     if (err || response.result === undefined || response.result === false) {
-      console.log(err)
       return rejectTransaction('Transaction failed!')
     } else {
       return dispatch(showSuccessNotification({ message: 'Transaction complete! Your balance will automatically update when the blockchain has processed it.' }))
