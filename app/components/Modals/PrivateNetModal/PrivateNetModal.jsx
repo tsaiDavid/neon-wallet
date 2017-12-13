@@ -115,8 +115,8 @@ class PrivateNetModal extends Component<Props, State> {
                   network={network}
                   isLabelInvalid={errorItemId === network.id && errorType === 'label'}
                   isUrlInvalid={errorItemId === network.id && errorType === 'url'}
-                  onChangeLabel={(newLabel: string) => this.updateNetwork(index, { ...network, label: newLabel })}
-                  onChangeURL={(newURL: URL) => this.updateNetwork(index, { ...network, value: newURL })}
+                  onChangeLabel={(label: string) => this.updateNetwork(index, { ...network, label })}
+                  onChangeURL={(value: URL) => this.updateNetwork(index, { ...network, value })}
                   onDelete={() => this.deletePrivateNetwork(network.id)}
                   key={`privateNetworkOption${network.id}`}
                 />

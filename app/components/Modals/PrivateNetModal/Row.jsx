@@ -47,7 +47,7 @@ class Row extends Component<Props> {
           defaultValue={network.value}
           onChange={(e) => onChangeURL(e.target.value)}
         />
-        <Tooltip title='Delete'><Delete onClick={onDelete} className={styles.deleteIcon} /></Tooltip>
+        <Tooltip title='Delete'><Delete onClick={onDelete} className={styles.icon} /></Tooltip>
       </div>
     )
   }

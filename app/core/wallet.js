@@ -1,18 +1,18 @@
 // @flow
-import { ASSETS, TOKENS } from './constants'
+import { ASSETS } from './constants'
 import { wallet } from 'neon-js'
 
 const MIN_PASSPHRASE_LEN = 4
 
 export const validatePassphraseLength = (passphrase: string): boolean => passphrase.length >= MIN_PASSPHRASE_LEN
 
-export const isToken = (symbol: SymbolType) => Object.keys(TOKENS).includes(symbol)
+export const isToken = (symbol: SymbolType) => symbol !== ASSETS.NEO && symbol !== ASSETS.GAS
 
-export const obtainTokenBalance = (tokens: Object, symbol: SymbolType) => {
+export const obtainTokenBalance = (tokens: Array<TokenBalanceType>, symbol: SymbolType) => {
   if (!isToken(symbol)) {
     throw new Error(`${symbol} is not a valid token`)
   }
-  const token = tokens[symbol]
+  const token = tokens.find((token: TokenBalanceType) => token.symbol === symbol)
   if (token) {
     return token.balance
   } else {

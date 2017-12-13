@@ -13,20 +13,23 @@ import asyncWrap from '../core/asyncHelper'
 
 import { version } from '../../package.json'
 
+const MAIN_NET_NETWORK_ID = '1'
+const TEST_NET_NETWORK_ID = '2'
+
 const publicNetworks = [
   {
-    id: '1',
+    id: MAIN_NET_NETWORK_ID,
     label: NETWORK.MAIN,
     value: NETWORK.MAIN
   },
   {
-    id: '2',
+    id: TEST_NET_NETWORK_ID,
     label: NETWORK.TEST,
     value: NETWORK.TEST
   }
 ]
 
-const defaultNetworkId = publicNetworks[0].id
+const DEFAULT_NETWORK_ID = MAIN_NET_NETWORK_ID
 
 const shouldSetDefaultNetworkId = (prevPrivateNetworks: Array<PrivateNetworkItemType>, nextPrivateNetworks: Array<PrivateNetworkItemType>, networkId: string) => {
   const prevNetworkIdFound = prevPrivateNetworks.find(({ id }) => id === networkId)
@@ -44,6 +47,7 @@ export const SET_HEIGHT = 'SET_HEIGHT'
 export const SET_NETWORK_ID = 'SET_NETWORK_ID'
 export const SET_EXPLORER = 'SET_EXPLORER'
 export const SET_PRIVATE_NETWORKS = 'SET_PRIVATE_NETWORKS'
+export const SET_TOKENS = 'SET_TOKENS'
 
 // Actions
 export const setNetworkId = (networkId: string) => ({
@@ -53,7 +57,7 @@ export const setNetworkId = (networkId: string) => ({
 
 export const setDefaultNetworkId = () => ({
   type: SET_NETWORK_ID,
-  payload: { networkId: defaultNetworkId }
+  payload: { networkId: DEFAULT_NETWORK_ID }
 })
 
 export const setBlockHeight = (blockHeight: number) => ({
@@ -64,6 +68,11 @@ export const setBlockHeight = (blockHeight: number) => ({
 export const setBlockExplorer = (blockExplorer: ExplorerType) => ({
   type: SET_EXPLORER,
   payload: { blockExplorer }
+})
+
+export const setTokens = (tokens: Array<TokenItemType>) => ({
+  type: SET_TOKENS,
+  payload: { tokens }
 })
 
 export const setPrivateNetworks = (privateNetworks: Array<PrivateNetworkItemType>) => (dispatch: DispatchType, getState: GetStateType) => {
@@ -120,6 +129,10 @@ export const initSettings = () => async (dispatch: DispatchType) => {
     if (!isNil(settings.networkId)) {
       dispatch(setNetworkId(settings.networkId))
     }
+
+    if (!isNil(settings.tokens)) {
+      dispatch(setTokens(settings.tokens))
+    }
   })
 }
 
@@ -136,21 +149,44 @@ export const getBlockExplorer = (state: Object) => state.metadata.blockExplorer
 export const getPublicNetwork = (state: Object) => state.metadata.publicNetworks
 export const getPrivateNetworks = (state: Object) => state.metadata.privateNetworks
 export const getNetworks = (state: Object) => [...getPublicNetwork(state), ...getPrivateNetworks(state)]
+export const getAllTokens = (state: Object) => state.metadata.tokens
 
 // computed state getters
 
 export const getNetwork = createSelector(
   getNetworks,
   getNetworkId,
-  (networks, networkId) => networks.find(({ id, value }) => id === networkId).value
+  (networks, selectedNetworkId) => networks.find(({ id, value }) => id === selectedNetworkId).value
+)
+
+export const getTokens = createSelector(
+  getAllTokens,
+  getNetworkId,
+  (tokens, selectedNetworkId) => tokens.filter(({ networkId }) => networkId === selectedNetworkId)
 )
 
 const initialState = {
   blockHeight: 0,
-  networkId: defaultNetworkId,
+  networkId: DEFAULT_NETWORK_ID,
   blockExplorer: EXPLORERS.NEO_TRACKER,
   publicNetworks,
-  privateNetworks: []
+  privateNetworks: [],
+  tokens: [
+    {
+      id: '1',
+      symbol: 'RPX',
+      scriptHash: 'ecc6b20d3ccac1ee9ef109af5a7cdb85706b1df9',
+      networkId: '1',
+      editable: false
+    },
+    {
+      id: '2',
+      symbol: 'RPX',
+      scriptHash: '5b7074e873973a6ed3708862f219a6fbf4d1c411',
+      networkId: '2',
+      editable: false
+    }
+  ]
 }
 
 export default (state: Object = initialState, action: ReduxAction) => {
@@ -178,6 +214,12 @@ export default (state: Object = initialState, action: ReduxAction) => {
       return {
         ...state,
         privateNetworks
+      }
+    case SET_TOKENS:
+      const { tokens } = action.payload
+      return {
+        ...state,
+        tokens
       }
     default:
       return state

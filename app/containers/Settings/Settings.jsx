@@ -26,7 +26,9 @@ type Props = {
   setNetworkId: Function,
   networks: Array<NetworkItemType>,
   privateNetworks: Array<PrivateNetworkItemType>,
-  setPrivateNetworks: Function
+  tokens: Array<TokenItemType>,
+  setPrivateNetworks: Function,
+  setTokens: Function
 }
 
 export default class Settings extends Component<Props> {
@@ -40,12 +42,13 @@ export default class Settings extends Component<Props> {
 
   componentWillReceiveProps (nextProps: Props) {
     if (!isEqual(nextProps, this.props)) {
-      const { explorer, networkId, currency, privateNetworks } = nextProps
+      const { explorer, networkId, currency, privateNetworks, tokens } = nextProps
       storage.set('settings', {
         blockExplorer: explorer,
         networkId,
         currency,
-        privateNetworks
+        privateNetworks,
+        tokens: tokens
       })
     }
   }
@@ -138,6 +141,16 @@ export default class Settings extends Component<Props> {
     })
   }
 
+  openTokenModal = () => {
+    const { setTokens, tokens, showModal, networks, networkId } = this.props
+    showModal(MODAL_TYPES.TOKEN, {
+      tokens,
+      networks,
+      setTokens,
+      networkId
+    })
+  }
+
   render () {
     const { wallets, explorer, currency, networkId, networks } = this.props
     return (
@@ -152,6 +165,10 @@ export default class Settings extends Component<Props> {
               )}
             </select>
             <Button onClick={this.openPrivateNetModal} className={styles.managePrivateNetwork}>Manage Private Networks</Button>
+          </div>
+          <div className='settingsItem'>
+            <div className='itemTitle'>Tokens</div>
+            <Button onClick={this.openTokenModal} className={styles.managePrivateNetwork}>Manage Tokens</Button>
           </div>
           <div className='settingsItem'>
             <div className='itemTitle'>Block Explorer</div>

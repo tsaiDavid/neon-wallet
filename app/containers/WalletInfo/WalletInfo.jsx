@@ -91,7 +91,7 @@ export default class WalletInfo extends Component<Props> {
         </div>
         <div className='spacer' />
         <Claim />
-        <TokensBalance tokens={tokens} showModal={showModal} />
+        {tokens.length > 0 && <TokensBalance tokens={tokens} showModal={showModal} />}
       </div>
     )
   }

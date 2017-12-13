@@ -1,24 +1,15 @@
 // @flow
 import { api } from 'neon-js'
+import { isNil } from 'lodash'
 
 import { syncTransactionHistory } from './transactions'
 import { syncAvailableClaim } from './claim'
-import { syncBlockHeight, getNetwork } from './metadata'
+import { syncBlockHeight, getNetwork, getTokens } from './metadata'
 import { LOGOUT, getAddress } from './account'
 import { getMarketPriceUSD, getGasMarketPriceUSD } from './price'
 import { showErrorNotification } from './notifications'
 
-import { TOKENS, TOKENS_TEST, NETWORK } from '../core/constants'
 import asyncWrap from '../core/asyncHelper'
-
-const TOKEN_PAIRS = Object.entries(TOKENS)
-
-export const getScriptHashForNetwork = (net: NetworkType, symbol: SymbolType) => {
-  if (net === NETWORK.TEST && TOKENS_TEST[symbol]) {
-    return TOKENS_TEST[symbol]
-  }
-  return TOKENS[symbol]
-}
 
 // Constants
 export const SET_BALANCE = 'SET_BALANCE'
@@ -26,7 +17,7 @@ export const SET_NEO_PRICE = 'SET_NEO_PRICE'
 export const SET_GAS_PRICE = 'SET_GAS_PRICE'
 export const RESET_PRICES = 'RESET_PRICES'
 export const SET_TRANSACTION_HISTORY = 'SET_TRANSACTION_HISTORY'
-export const SET_TOKENS = 'SET_TOKENS'
+export const SET_TOKENS_BALANCE = 'SET_TOKENS_BALANCE'
 export const SET_IS_LOADED = 'SET_IS_LOADED'
 
 export const setIsLoaded = (loaded: boolean) => ({
@@ -51,10 +42,10 @@ export function setTransactionHistory (transactions: Array<Object>) {
   }
 }
 
-export function setTokens (tokens: Object) {
+export function setTokensBalance (tokensBalance: Array<TokenBalanceType>) {
   return {
-    type: SET_TOKENS,
-    payload: { tokens }
+    type: SET_TOKENS_BALANCE,
+    payload: { tokensBalance }
   }
 }
 
@@ -93,53 +84,41 @@ export const retrieveTokensBalance = () => async (dispatch: DispatchType, getSta
   const state = getState()
   const net = getNetwork(state)
   const address = getAddress(state)
+  const tokens = getTokens(state)
+  const tokenBalances = []
 
-  const tokens = getInitialTokenBalance()
-  for (let [symbol] of TOKEN_PAIRS) {
-    const scriptHash = getScriptHashForNetwork(net, symbol)
-    // override scripthash with test if on test net
-    const [_error, tokenRpcEndpoint] = await asyncWrap(api.neonDB.getRPCEndpoint(net)) // eslint-disable-line
-    const [err, tokenResults] = await asyncWrap(api.nep5.getToken(tokenRpcEndpoint, scriptHash, address))
+  for (const token of tokens) {
+    const { scriptHash, symbol } = token
+    const [rpcError, tokenRpcEndpoint] = await asyncWrap(api.neonDB.getRPCEndpoint(net))
+    const [tokenError, tokenResults] = await asyncWrap(api.nep5.getToken(tokenRpcEndpoint, scriptHash, address))
 
-    if (!err) {
-      tokens[symbol] = {
-        ...tokenResults,
-        balance: tokenResults.balance === null ? 0 : tokenResults.balance,
-        scriptHash
-      }
-    } else {
+    if (rpcError || tokenError) {
       dispatch(showErrorNotification({ message: `could not retrieve ${symbol} balance`, stack: true }))
+    } else {
+      tokenBalances.push({
+        ...tokenResults,
+        balance: isNil(tokenResults.balance) ? 0 : tokenResults.balance,
+        scriptHash
+      })
     }
   }
 
-  return dispatch(setTokens(tokens))
+  return dispatch(setTokensBalance(tokenBalances))
 }
 
 // state getters
 export const getNEO = (state: Object) => state.wallet.NEO
 export const getGAS = (state: Object) => state.wallet.GAS
 export const getTransactions = (state: Object) => state.wallet.transactions
-export const getTokens = (state: Object) => state.wallet.tokens
+export const getTokensBalance = (state: Object) => state.wallet.tokensBalance
 export const getIsLoaded = (state: Object) => state.wallet.loaded
-
-const getInitialTokenBalance = () => {
-  const tokens = {}
-  Object.keys(TOKENS).forEach(symbol => {
-    tokens[symbol] = {
-      symbol,
-      scriptHash: TOKENS[symbol],
-      balance: 0
-    }
-  })
-  return tokens
-}
 
 const initialState = {
   loaded: false,
   NEO: 0,
   GAS: 0,
   transactions: [],
-  tokens: getInitialTokenBalance()
+  tokensBalance: []
 }
 
 export default (state: Object = initialState, action: ReduxAction) => {
@@ -157,11 +136,11 @@ export default (state: Object = initialState, action: ReduxAction) => {
         ...state,
         transactions
       }
-    case SET_TOKENS:
-      const { tokens } = action.payload
+    case SET_TOKENS_BALANCE:
+      const { tokensBalance } = action.payload
       return {
         ...state,
-        tokens
+        tokensBalance
       }
     case SET_IS_LOADED:
       const { loaded } = action.payload

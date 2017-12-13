@@ -25,9 +25,8 @@ const tokens = ({ tokens, showModal }: Props) => (
       </tr>
     </thead>
     <tbody>
-      {tokens && Object.keys(tokens).map((symbol) => {
-        const token = tokens[symbol]
-        const { balance } = token
+      {tokens.map((token: TokenBalanceType) => {
+        const { symbol, balance } = token
         const formattedBalance = formatBalance(symbol, balance)
         const formattedBalanceDisplay = formatBalance(symbol, balance, true)
         return (

@@ -78,7 +78,7 @@ const SendDisplay = ({
           >
             <option value={ASSETS.NEO}>{ASSETS.NEO}</option>
             <option value={ASSETS.GAS}>{ASSETS.GAS}</option>
-            {Object.keys(tokens).map((symbol) => <option key={symbol} value={symbol}>{symbol}</option>)}
+            {tokens.map(({ symbol }: TokenBalanceType) => <option key={symbol} value={symbol}>{symbol}</option>)}
           </select>
           {isToken(symbol) && <span className={styles.tokenInfoMessage}>Sending NEP5 tokens requires holding at least 1 drop of GAS</span>}
         </div>

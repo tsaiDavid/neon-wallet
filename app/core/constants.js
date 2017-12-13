@@ -61,17 +61,8 @@ export const MODAL_TYPES = {
   RECEIVE: 'RECEIVE',
   CONFIRM: 'CONFIRM',
   TOKEN_INFO: 'TOKEN_INFO',
-  PRIVATE_NET: 'PRIVATE_NET'
-}
-
-// TestNet
-export const TOKENS_TEST = {
-  RPX: '5b7074e873973a6ed3708862f219a6fbf4d1c411'
-}
-
-// MainNet
-export const TOKENS = {
-  RPX: 'ecc6b20d3ccac1ee9ef109af5a7cdb85706b1df9'
+  PRIVATE_NET: 'PRIVATE_NET',
+  TOKEN: 'TOKEN'
 }
 
 export const DEFAULT_CURRENCY_CODE = 'usd'

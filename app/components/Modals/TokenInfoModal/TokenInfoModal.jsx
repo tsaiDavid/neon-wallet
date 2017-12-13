@@ -10,7 +10,7 @@ import styles from './TokenInfoModal.scss'
 
 type Props = {
     hideModal: Function,
-    token: TokenType,
+    token: TokenBalanceType,
 }
 
 const TokenInfoModal = ({ hideModal, token }: Props) => (

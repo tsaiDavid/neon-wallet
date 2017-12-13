@@ -6,6 +6,7 @@ import ReceiveModal from '../../components/Modals/ReceiveModal'
 import SendModal from '../../components/Modals/SendModal'
 import TokenInfoModal from '../../components/Modals/TokenInfoModal'
 import PrivateNetModal from '../../components/Modals/PrivateNetModal'
+import TokenModal from '../../components/Modals/TokenModal'
 import { MODAL_TYPES } from '../../core/constants'
 
 const {
@@ -13,7 +14,8 @@ const {
   RECEIVE,
   SEND,
   TOKEN_INFO,
-  PRIVATE_NET
+  PRIVATE_NET,
+  TOKEN
 } = MODAL_TYPES
 
 const MODAL_COMPONENTS = {
@@ -21,7 +23,8 @@ const MODAL_COMPONENTS = {
   [RECEIVE]: ReceiveModal,
   [SEND]: SendModal,
   [TOKEN_INFO]: TokenInfoModal,
-  [PRIVATE_NET]: PrivateNetModal
+  [PRIVATE_NET]: PrivateNetModal,
+  [TOKEN]: TokenModal
 }
 
 type Props = {
