@@ -2,7 +2,7 @@
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 
-import { setKeys, getAccountKeys, setTokens } from '../../modules/account'
+import { setKeys, getAccountKeys } from '../../modules/account'
 import { setCurrency, getCurrency } from '../../modules/price'
 import {
   setBlockExplorer,
@@ -12,7 +12,8 @@ import {
   setPrivateNetworks,
   getNetworks,
   getPrivateNetworks,
-  getAllTokens
+  getAllTokens,
+  setTokens
 } from '../../modules/metadata'
 
 import { showModal } from '../../modules/modal'

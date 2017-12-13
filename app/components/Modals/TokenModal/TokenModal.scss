@@ -3,8 +3,13 @@
 }
 
 .addToken {
-    cursor: pointer;
+    display: flex;
+    align-items: center;
     padding-bottom: 15px;
+}
+
+.networkLabel {
+    padding-right: 5px;
 }
 
 .rowsContainer {

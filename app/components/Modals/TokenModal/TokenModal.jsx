@@ -73,10 +73,11 @@ class TokenModal extends Component<Props, State> {
     }
   }
 
-  updateToken = (index: number, newValue: TokenItemType) => {
+  updateToken = (id: string, newValue: TokenItemType) => {
     const { tokens } = this.state
     const updatedTokens = [...tokens]
-    updatedTokens[index] = newValue
+    const tokenIndex = updatedTokens.findIndex((token) => token.id === id)
+    updatedTokens[tokenIndex] = newValue
 
     this.setState({
       tokens: updatedTokens,
@@ -109,11 +110,14 @@ class TokenModal extends Component<Props, State> {
         <div className={styles.container}>
           <div className={styles.addToken}>
             <Button onClick={this.addToken}><Add /> Add a new token</Button>
-            <select defaultValue={networkId} onChange={this.updateNetworkId}>
-              {networks.map(({ label, id }: NetworkItemType) =>
-                <option key={`networkOption${id}`} value={id}>{label}</option>
-              )}
-            </select>
+            <div>
+              <span className={styles.networkLabel}>Network:</span>
+              <select defaultValue={networkId} onChange={this.updateNetworkId}>
+                {networks.map(({ label, id }: NetworkItemType) =>
+                  <option key={`networkOption${id}`} value={id}>{label}</option>
+                )}
+              </select>
+            </div>
 
           </div>
           <form onSubmit={(e) => {
@@ -121,13 +125,13 @@ class TokenModal extends Component<Props, State> {
             this.saveAndValidateTokens()
           }}>
             <div className={styles.rowsContainer}>
-              {tokens.filter(token => token.networkId === networkId).map((token: TokenItemType, index: number) => (
+              {tokens.filter(token => token.networkId === networkId).map((token: TokenItemType) => (
                 <Row
                   token={token}
                   isSymbolInvalid={errorItemId === token.id && errorType === 'symbol'}
                   isScriptHashInvalid={errorItemId === token.id && errorType === 'scriptHash'}
-                  onChangeSymbol={(symbol: SymbolType) => this.updateToken(index, { ...token, symbol })}
-                  onChangeScriptHash={(scriptHash: string) => this.updateToken(index, { ...token, scriptHash })}
+                  onChangeSymbol={(symbol: SymbolType) => this.updateToken(token.id, { ...token, symbol })}
+                  onChangeScriptHash={(scriptHash: string) => this.updateToken(token.id, { ...token, scriptHash })}
                   onDelete={() => this.deleteToken(token.id)}
                   key={`tokenOption${token.id}`}
                 />
