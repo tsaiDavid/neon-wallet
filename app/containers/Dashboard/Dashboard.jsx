@@ -31,20 +31,34 @@ type Props = {
   isHardwareLogin: boolean,
 }
 
-const REFRESH_INTERVAL_MS = 30000
-let walletDataInterval
+type State = {
+  walletRefreshIntervalId: ?number
+}
 
-export default class Dashboard extends Component<Props> {
+const REFRESH_INTERVAL_MS = 30000
+
+export default class Dashboard extends Component<Props, State> {
+  state = {
+    walletRefreshIntervalId: null
+  }
+
   componentDidMount () {
     const { loadWalletData, net, address } = this.props
     // only logging public information here
     log(net, 'LOGIN', address, {})
     loadWalletData()
-    walletDataInterval = setInterval(loadWalletData, REFRESH_INTERVAL_MS)
+    const walletRefreshIntervalId = setInterval(loadWalletData, REFRESH_INTERVAL_MS)
+    this.setState({
+      walletRefreshIntervalId
+    })
   }
 
   componentWillUnmount () {
-    clearInterval(walletDataInterval)
+    const { walletRefreshIntervalId } = this.state
+
+    if (walletRefreshIntervalId) {
+      clearInterval(walletRefreshIntervalId)
+    }
   }
 
   render () {
